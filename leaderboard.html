@@ -16,6 +16,8 @@ h1{text-align:center;margin:0 0 4px;font-size:clamp(28px,5vw,52px);text-shadow:0
 .tabs button.on{background:var(--gold)}
 .list{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
 .row{display:grid;grid-template-columns:70px 1fr auto auto;align-items:center;gap:14px;background:var(--paper);color:var(--ink);border:4px solid var(--ink);border-radius:16px;padding:10px 18px;box-shadow:0 5px 0 rgba(0,0,0,.35);font-size:clamp(18px,2.6vw,26px);font-weight:800}
+.row.sm{padding:4px 16px;border-width:3px;border-radius:12px;font-size:clamp(15px,2vw,19px);box-shadow:0 3px 0 rgba(0,0,0,.3)}
+.row.sm .rank{font-size:1.1em}
 .row.r1{background:#ffe9a8}.row.r2{background:#eef0f5}.row.r3{background:#ffdcc2}
 .rank{font-size:1.4em;text-align:center}
 .who small{color:#c45a00;font-size:.7em;margin-left:6px}
@@ -44,15 +46,15 @@ function mmss(s){s=Number(s)||0;return Math.floor(s/60)+':'+String(s%60).padStar
 function load(){
   const list=document.getElementById('list');
   if(!SHEET_URL){list.innerHTML='<div class="err">未設定排行榜網址（SHEET_URL）</div>';return;}
-  fetch(SHEET_URL+'?action=board&limit=30&cls='+cls).then(r=>r.json()).then(d=>{
+  fetch(SHEET_URL+'?action=board&best=1&limit=1000&cls='+cls).then(r=>r.json()).then(d=>{
     if(!d.rows.length){list.innerHTML='<div class="empty">暫時未有紀錄</div>';return;}
     list.innerHTML=d.rows.map((r,i)=>{
       const medal=['🥇','🥈','🥉'][i]||(i+1);
       const lab=r.attempt>1?`<small>（第${CN[r.attempt]||r.attempt}次）</small>`:'';
-      return `<div class="row ${i<3?'r'+(i+1):''}"><div class="rank">${medal}</div>
+      return `<div class="row ${i<3?'r'+(i+1):i>=10?'sm':''}"><div class="rank">${medal}</div>
         <div class="who">${esc(r.cls)} ${esc(r.no)} 號${lab}<div class="title">${esc(r.title||'')}</div></div>
         <div class="pts">${r.score} 分</div><div class="time">⏱ ${mmss(r.secs)}</div></div>`;}).join('');
-    document.getElementById('foot').textContent='每 10 秒自動更新・最後更新 '+new Date().toLocaleTimeString('zh-HK');
+    document.getElementById('foot').textContent=`共 ${d.rows.length} 位同學（每人只計最高分）・每 10 秒自動更新・最後更新 `+new Date().toLocaleTimeString('zh-HK');
   }).catch(()=>{list.innerHTML='<div class="err">未能讀取排行榜，請檢查網絡</div>';});
 }
 load();setInterval(load,10000);
