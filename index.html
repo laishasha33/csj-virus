@@ -1299,7 +1299,7 @@ function choose(k){
     if(boomed){addPts(5);save();boom();}
     if(LAST_Q[st.idx]!==undefined)finale(LAST_Q[st.idx],boomed?1900:300);
   }else{
-    qs.wrong.push(k);st.tries=qs.wrong.length;st.streak=0;save();renderQuiz();ding(false);Object.values(castEls).forEach(el=>anim(el,'shake'));
+    qs.wrong.push(k);st.tries=qs.wrong.length;st.streak=0;(st.qlog=st.qlog||{})[st.idx]=qs.wrong.slice();save();renderQuiz();ding(false);Object.values(castEls).forEach(el=>anim(el,'shake'));
 
   }
 }
@@ -1541,7 +1541,8 @@ function finish(){
     else if(!SHEET_URL)st.up={k:'upNone'};
     else{
       st.up={k:'upIng'};
-      const qs=new URLSearchParams({action:'submit',cls:st.cls,no:st.no,score:st.score,total:MAX_SCORE,secs,title:zhTitle});
+      const qlog=STORY.map((x,i)=>x.q?((st.qlog||{})[i]||[]).map(k=>'ABCD'[k]).join(''):null).filter(v=>v!==null).join('.');
+      const qs=new URLSearchParams({action:'submit',cls:st.cls,no:st.no,score:st.score,total:MAX_SCORE,secs,title:zhTitle,qs:qlog});
       fetch(SHEET_URL+'?'+qs.toString()).then(r=>r.json()).then(d=>{if(!d.ok)throw new Error(d.error);st.up={k:'ok',attempt:d.attempt||1};save();endText();})
         .catch(()=>{st.up={k:'upFail'};st.done=false;save();endText();});
     }
@@ -1593,7 +1594,7 @@ $('startBtn').onclick=()=>{
     if(!no||/^0+$/.test(no)){$('regErr').textContent=L().errNo;return;}
     if(h(pw)!==PWD_HASH){$('regErr').textContent=pw?L().errPwd:L().errPwd0;return;}
   }
-  st={idx:0,score:0,cls,no,t0:Date.now(),done:false,tries:0,test:isTest,q:null,streak:0,bonus:0,mgAt:{},mgDone:{},intro:{},danced:false};save();
+  st={idx:0,score:0,cls,no,t0:Date.now(),done:false,tries:0,test:isTest,q:null,streak:0,bonus:0,mgAt:{},mgDone:{},intro:{},danced:false,qlog:{}};save();
   testBadge();testTools();$('regScreen').hidden=true;$('score').textContent=0;renderMap(0);step();
 };
 
