@@ -1301,7 +1301,7 @@ const NAMES={flu:'流感病毒',small:'天花病毒',yeast:'酵母菌',cholera:'
 const UI={
  zh:{score:'分數',tap:'點一下繼續 ▶',gameTitle:'🦠 病毒大作戰',gameSub:'急症室大審判',grpLabel:'參加組別',grpS3:'🏆 中三挑戰賽',grpOpen:'🌍 公開挑戰賽',grades:{1:'中一',2:'中二',4:'中四',5:'中五',6:'中六'},errGrade:'請選擇年級和班別',errWrongGrp:'這個密語不屬於你所選的組別，請檢查組別',clsLabel:'你的班別',noLabel:'你的學號',noPh:'例如：12',noHint:'只需輸入數字即可',
      pwdLabel:'開始密語（聽老師說）',pwdPh:'等老師說出密語',start:'開始遊戲 ▶',rating:'白血球醫生的危險評級',moral:'現實中，請勤洗手、打疫苗、多做運動。<br>病菌聯盟永遠不受歡迎！',
-     again:'再玩一次',sndOn:' 聲音：開',sndOff:' 聲音：關',narr:'旁白',errCls:'請先選擇班別',errNo:'請輸入學號（數字）',errPwd:'密語不正確，請聽老師說',errPwd0:'請輸入老師說的開始密語',
+     again:'再玩一次',sndOn:' 聲音：開',sndOff:' 聲音：關',narr:'旁白',errCls:'請先選擇班別',errNo:'請輸入學號（數字）',errNoBig:'學號不正確，請再檢查',errPwd:'密語不正確，請聽老師說',errPwd0:'請輸入老師說的開始密語',
      hello:'選擇語言、班別，輸入學號和開始密語，就可以開始。',qtag:(n,lv)=>`第 ${n} 題 · ${lv}`,lv:{'簡單':'簡單','中等':'中等','困難':'困難'},
      right:g=>`答對！+${g} 分。`,think:'再想一想！',go:'明白了，繼續 ▶',pts:(a,b)=>`${a} / ${b} 分`,who:(c,n)=>`${c}　${n} 號`,
      test:'🧪 測試',upTest:'🧪 測試模式：分數不會上傳排行榜',upNone:'（未設定排行榜，分數只顯示在這部裝置）',upIng:'📡 正在上傳分數……',
@@ -1329,7 +1329,7 @@ const UI={
      partyTitle:'🦠 流感爆發！🕶️',partySub:'污糟糟中學感染率：',partyNote:'現實中，學校爆發流感時，曾有一班半數同學請病假。',bonus:b=>`（連續答對及突擊任務：${b>=0?'+':''}${b}）`},
  en:{score:'Score',tap:'Tap to continue ▶',gameTitle:'🦠 Virus Wars',gameSub:'Trial in the Body A&E',grpLabel:'Division',grpS3:'🏆 S3 Challenge',grpOpen:'🌍 Open Challenge',grades:{1:'S1',2:'S2',4:'S4',5:'S5',6:'S6'},errGrade:'Please choose your form and class',errWrongGrp:'This password is for the other division. Check your division.',clsLabel:'Your class',noLabel:'Your class number',noPh:'e.g. 12',noHint:'Numbers only',
      pwdLabel:'Start password (listen to your teacher)',pwdPh:'Wait for the password',start:'Start ▶',rating:"Dr. White Blood Cell's Danger Rating",moral:'In real life: wash your hands, get vaccinated and exercise.<br>The Germ Alliance is never welcome!',
-     again:'Play again',sndOn:' Sound: on',sndOff:' Sound: off',narr:'Narrator',errCls:'Please choose your class',errNo:'Please enter your class number',errPwd:'Wrong password. Listen to your teacher!',errPwd0:'Please enter the start password',
+     again:'Play again',sndOn:' Sound: on',sndOff:' Sound: off',narr:'Narrator',errCls:'Please choose your class',errNo:'Please enter your class number',errNoBig:'That class number is not valid. Please check.',errPwd:'Wrong password. Listen to your teacher!',errPwd0:'Please enter the start password',
      hello:'Choose a language and your class, enter your class number and the start password to begin.',qtag:(n,lv)=>`Question ${n} · ${lv}`,lv:{'簡單':'Easy','中等':'Medium','困難':'Hard'},
      right:g=>`Correct! +${g} points. `,think:'Think again!',go:'Got it, continue ▶',pts:(a,b)=>`${a} / ${b} points`,who:(c,n)=>`${c}　No. ${n}`,
      test:'🧪 Test',upTest:'🧪 Test mode: score not uploaded',upNone:'(Leaderboard not set up. Score shown on this device only.)',upIng:'📡 Uploading score...',
@@ -1832,6 +1832,7 @@ $('startBtn').onclick=()=>{
   else{
     if(!cls){$('regErr').textContent=grp==='S3'?L().errCls:L().errGrade;return;}
     if(!no||/^0+$/.test(no)){$('regErr').textContent=L().errNo;return;}
+    if(Number(no)>35){$('regErr').textContent=L().errNoBig;return;}   // 每班最多 32 人，防止學生亂填學號
     const want=grp==='S3'?PWD_HASH:OPEN_HASH,other=grp==='S3'?OPEN_HASH:PWD_HASH;
     if(h(pw)===other){$('regErr').textContent=L().errWrongGrp;return;}
     if(h(pw)!==want){$('regErr').textContent=pw?L().errPwd:L().errPwd0;return;}

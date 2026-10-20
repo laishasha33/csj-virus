@@ -16,6 +16,8 @@ h1{text-align:center;margin:0 0 4px;font-size:clamp(28px,5vw,52px);text-shadow:0
 .tabs button.on{background:var(--gold)}
 .tabs.big button{font-size:22px;padding:8px 22px}
 .tabs.big button.on{background:#7cc8ff}
+#modes button{font-size:16px;padding:4px 14px}
+#modes button.on{background:#7ed6a5}
 .list{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
 .row{display:grid;grid-template-columns:70px 1fr auto auto;align-items:center;gap:14px;background:var(--paper);color:var(--ink);border:4px solid var(--ink);border-radius:16px;padding:10px 18px;box-shadow:0 5px 0 rgba(0,0,0,.35);font-size:clamp(18px,2.6vw,26px);font-weight:800}
 .row.sm{padding:4px 16px;border-width:3px;border-radius:12px;font-size:clamp(15px,2vw,19px);box-shadow:0 3px 0 rgba(0,0,0,.3)}
@@ -39,6 +41,7 @@ h1{text-align:center;margin:0 0 4px;font-size:clamp(28px,5vw,52px);text-shadow:0
 <div class="sub">污糟糟中學・急症室大審判</div>
 <div class="tabs big" id="grps"><button data-g="S3" class="on">🏆 中三挑戰賽</button><button data-g="OPEN">🌍 公開挑戰賽</button></div>
 <div class="tabs" id="tabs"></div>
+<div class="tabs" id="modes"><button data-m="first">🎯 第一次成績</button><button data-m="best" class="on">🔁 最佳成績（包括重玩）</button></div>
 <div class="list" id="list"><div class="empty">載入中……</div></div>
 <div class="foot" id="foot">每 10 秒自動更新</div>
 <script>
@@ -48,6 +51,8 @@ const CN=['','一','二','三','四','五','六','七','八','九','十'];
 // 中三挑戰賽：全級／3A／3B／3C；公開挑戰賽：初中（中一、中二）／高中（中四至中六）
 const SUB={S3:[['S3','全級'],['3A','3A'],['3B','3B'],['3C','3C'],['CLS','🏫 班際']],OPEN:[['JR','初中（中一、中二）'],['SR','高中（中四至中六）']]};
 let cls='S3';
+let mode='best';
+document.querySelectorAll('#modes button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll('#modes button').forEach(x=>x.classList.toggle('on',x===b));load();});
 function tabs(g){document.getElementById('tabs').innerHTML=SUB[g].map(([c,t],i)=>`<button data-c="${c}" class="${i?'':'on'}">${t}</button>`).join('');
   cls=SUB[g][0][0];document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{cls=b.dataset.c;document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x===b));load();});}
 document.querySelectorAll('#grps button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#grps button').forEach(x=>x.classList.toggle('on',x===b));tabs(b.dataset.g);load();});
@@ -67,19 +72,32 @@ function loadClasses(list){
 function load(){
   const list=document.getElementById('list');
   if(!SHEET_URL){list.innerHTML='<div class="err">未設定排行榜網址（SHEET_URL）</div>';return;}
+  document.getElementById('modes').style.display=cls==='CLS'?'none':'';
   if(cls==='CLS')return loadClasses(list);
-  fetch(SHEET_URL+'?action=board&best=1&limit=1000&cls='+cls).then(r=>r.json()).then(d=>{
+  fetch(SHEET_URL+'?action=board&limit=1000&cls='+cls).then(r=>r.json()).then(d=>{
     if(!d.rows.length){list.innerHTML='<div class="empty">暫時未有紀錄</div>';return;}
+    // 每位同學的紀錄按時間排列；刷新而重複上傳的（同一分數、相隔不到 60 秒）只計一次，並重新數「第幾次」
+    const by={};
+    d.rows.forEach(r=>{const k=r.cls+'-'+r.no;(by[k]=by[k]||[]).push(r);});
+    const people=Object.values(by).map(rs=>{
+      rs.sort((a,b)=>new Date(a.time)-new Date(b.time));
+      const plays=[];rs.forEach(r=>{const p=plays[plays.length-1];
+        if(p&&p.score===r.score&&new Date(r.time)-new Date(p.time)<60000)return;plays.push(r);});
+      plays.forEach((r,i)=>r.n=i+1);
+      const best=plays.slice().sort((a,b)=>b.score-a.score||a.secs-b.secs)[0];
+      return {first:plays[0],best,plays:plays.length};
+    });
+    const rows=people.map(p=>mode==='first'?p.first:p.best).sort((a,b)=>b.score-a.score||a.secs-b.secs);
     // 進步之星：最高分比第一次多得最多的三位同學
-    const up=d.rows.filter(r=>r.first!==undefined&&r.score>r.first).sort((a,b)=>(b.score-b.first)-(a.score-a.first)).slice(0,3);
-    const starBox=up.length?`<div class="stars">🚀 <b>進步之星</b><br>${up.map(r=>`<span>${esc(r.cls)} ${esc(r.no)} 號　+${r.score-r.first} 分</span>`).join('')}</div>`:'';
-    list.innerHTML=starBox+d.rows.map((r,i)=>{
+    const up=people.filter(p=>p.best.score>p.first.score).sort((a,b)=>(b.best.score-b.first.score)-(a.best.score-a.first.score)).slice(0,3);
+    const starBox=mode==='best'&&up.length?`<div class="stars">🚀 <b>進步之星</b><br>${up.map(p=>`<span>${esc(p.best.cls)} ${esc(p.best.no)} 號　+${p.best.score-p.first.score} 分</span>`).join('')}</div>`:'';
+    list.innerHTML=starBox+rows.map((r,i)=>{
       const medal=['🥇','🥈','🥉'][i]||(i+1);
-      const lab=r.attempt>1?`<small>（第${CN[r.attempt]||r.attempt}次）</small>`:'';
+      const lab=r.n>1?`<small>（第${CN[r.n]||r.n}次）</small>`:'';
       return `<div class="row ${i<3?'r'+(i+1):i>=10?'sm':''}"><div class="rank">${medal}</div>
         <div class="who">${esc(r.cls)} ${esc(r.no)} 號${lab}<div class="title">${esc(r.title||'')}</div></div>
         <div class="pts">${r.score} 分</div><div class="time">⏱ ${mmss(r.secs)}</div></div>`;}).join('');
-    document.getElementById('foot').textContent=`共 ${d.rows.length} 位同學（每人只計最高分）・每 10 秒自動更新・最後更新 `+new Date().toLocaleTimeString('zh-HK');
+    document.getElementById('foot').textContent=`共 ${rows.length} 位同學（${mode==='first'?'每人只計第一次':'每人只計最高分'}）・每 10 秒自動更新・最後更新 `+new Date().toLocaleTimeString('zh-HK');
   }).catch(()=>{list.innerHTML='<div class="err">未能讀取排行榜，請檢查網絡</div>';});
 }
 load();setInterval(load,10000);
