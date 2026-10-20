@@ -14,6 +14,8 @@ h1{text-align:center;margin:0 0 4px;font-size:clamp(28px,5vw,52px);text-shadow:0
 .tabs{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
 .tabs button{font:inherit;font-weight:900;font-size:20px;border:4px solid var(--ink);border-radius:14px;background:#fff;padding:6px 20px;cursor:pointer}
 .tabs button.on{background:var(--gold)}
+.tabs.big button{font-size:22px;padding:8px 22px}
+.tabs.big button.on{background:#7cc8ff}
 .list{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
 .row{display:grid;grid-template-columns:70px 1fr auto auto;align-items:center;gap:14px;background:var(--paper);color:var(--ink);border:4px solid var(--ink);border-radius:16px;padding:10px 18px;box-shadow:0 5px 0 rgba(0,0,0,.35);font-size:clamp(18px,2.6vw,26px);font-weight:800}
 .row.sm{padding:4px 16px;border-width:3px;border-radius:12px;font-size:clamp(15px,2vw,19px);box-shadow:0 3px 0 rgba(0,0,0,.3)}
@@ -24,6 +26,9 @@ h1{text-align:center;margin:0 0 4px;font-size:clamp(28px,5vw,52px);text-shadow:0
 .title{font-size:.62em;color:#666;font-weight:700}
 .pts{color:#c45a00;font-variant-numeric:tabular-nums}
 .time{color:#666;font-size:.75em;font-variant-numeric:tabular-nums}
+.stars{max-width:900px;margin:0 auto 14px;background:#2d2560;border:3px solid #7cc8ff;border-radius:16px;padding:10px 16px;color:#fff;font-weight:800;font-size:clamp(15px,2vw,19px)}
+.stars b{color:#7cc8ff}.stars span{display:inline-block;margin:4px 14px 0 0}
+.cls .who{font-size:1.15em}.cls .sub2{font-size:.6em;color:#666;font-weight:700}
 .empty,.err{text-align:center;color:#cfd3ff;font-size:20px;margin-top:30px}
 .foot{text-align:center;color:#8f93c9;font-size:13px;margin-top:18px}
 @media (max-width:560px){.row{grid-template-columns:44px 1fr auto}.time{display:none}}
@@ -32,23 +37,43 @@ h1{text-align:center;margin:0 0 4px;font-size:clamp(28px,5vw,52px);text-shadow:0
 <body>
 <h1>🦠 病毒大作戰排行榜</h1>
 <div class="sub">污糟糟中學・急症室大審判</div>
-<div class="tabs" id="tabs"><button data-c="ALL" class="on">全部</button><button data-c="3A">3A</button><button data-c="3B">3B</button><button data-c="3C">3C</button></div>
+<div class="tabs big" id="grps"><button data-g="S3" class="on">🏆 中三挑戰賽</button><button data-g="OPEN">🌍 公開挑戰賽</button></div>
+<div class="tabs" id="tabs"></div>
 <div class="list" id="list"><div class="empty">載入中……</div></div>
 <div class="foot" id="foot">每 10 秒自動更新</div>
 <script>
 // 與 index.html 相同的 Apps Script 網址
 const SHEET_URL = 'https://script.google.com/macros/s/AKfycbw0Chrr7TyXx27H87iBv_qd-IShntKCbC9oc1re82b2zV9OLqh-MrpD75iR8rIJBZNy/exec';
 const CN=['','一','二','三','四','五','六','七','八','九','十'];
-let cls='ALL';
-document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{cls=b.dataset.c;document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x===b));load();});
+// 中三挑戰賽：全級／3A／3B／3C；公開挑戰賽：初中（中一、中二）／高中（中四至中六）
+const SUB={S3:[['S3','全級'],['3A','3A'],['3B','3B'],['3C','3C'],['CLS','🏫 班際']],OPEN:[['JR','初中（中一、中二）'],['SR','高中（中四至中六）']]};
+let cls='S3';
+function tabs(g){document.getElementById('tabs').innerHTML=SUB[g].map(([c,t],i)=>`<button data-c="${c}" class="${i?'':'on'}">${t}</button>`).join('');
+  cls=SUB[g][0][0];document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{cls=b.dataset.c;document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x===b));load();});}
+document.querySelectorAll('#grps button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#grps button').forEach(x=>x.classList.toggle('on',x===b));tabs(b.dataset.g);load();});
+tabs('S3');
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function mmss(s){s=Number(s)||0;return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+function loadClasses(list){
+  // 班際：每人計最高分；平均分以全班人數計（未玩當 0 分），所以全班參與愈多愈有利
+  fetch(SHEET_URL+'?action=classes').then(r=>r.json()).then(d=>{
+    list.innerHTML='<div class="stars">🏫 <b>班際排行</b>：每人計最高分，平均分<b>以全班人數計（未玩當 0 分）</b>，全班一齊玩先有利！</div>'+
+      d.rows.map((r,i)=>`<div class="row cls ${'r'+(i+1)}"><div class="rank">${['🥇','🥈','🥉'][i]||(i+1)}</div>
+        <div class="who">${esc(r.cls)}<div class="sub2">已玩 ${r.players} / ${r.size} 人・已玩同學平均 ${r.avgPlayed} 分</div></div>
+        <div class="pts">${r.avg} 分</div><div class="time"></div></div>`).join('');
+    document.getElementById('foot').textContent='每 10 秒自動更新・最後更新 '+new Date().toLocaleTimeString('zh-HK');
+  }).catch(()=>{list.innerHTML='<div class="err">未能讀取排行榜，請檢查網絡</div>';});
+}
 function load(){
   const list=document.getElementById('list');
   if(!SHEET_URL){list.innerHTML='<div class="err">未設定排行榜網址（SHEET_URL）</div>';return;}
+  if(cls==='CLS')return loadClasses(list);
   fetch(SHEET_URL+'?action=board&best=1&limit=1000&cls='+cls).then(r=>r.json()).then(d=>{
     if(!d.rows.length){list.innerHTML='<div class="empty">暫時未有紀錄</div>';return;}
-    list.innerHTML=d.rows.map((r,i)=>{
+    // 進步之星：最高分比第一次多得最多的三位同學
+    const up=d.rows.filter(r=>r.first!==undefined&&r.score>r.first).sort((a,b)=>(b.score-b.first)-(a.score-a.first)).slice(0,3);
+    const starBox=up.length?`<div class="stars">🚀 <b>進步之星</b><br>${up.map(r=>`<span>${esc(r.cls)} ${esc(r.no)} 號　+${r.score-r.first} 分</span>`).join('')}</div>`:'';
+    list.innerHTML=starBox+d.rows.map((r,i)=>{
       const medal=['🥇','🥈','🥉'][i]||(i+1);
       const lab=r.attempt>1?`<small>（第${CN[r.attempt]||r.attempt}次）</small>`:'';
       return `<div class="row ${i<3?'r'+(i+1):i>=10?'sm':''}"><div class="rank">${medal}</div>
