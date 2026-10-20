@@ -137,6 +137,23 @@ body{overflow-x:hidden}
 .lang{font-weight:900;font-size:13px;border:3px solid var(--ink);border-radius:10px;background:#fff;padding:3px 9px;cursor:pointer;white-space:nowrap;color:#999}
 .lang span.on{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
 .langpick{display:flex;gap:8px;margin-bottom:10px}
+/* ===== 登記頁：所有裝置都不用捲動就看到「開始遊戲」 ===== */
+.panel.reg{padding:14px 18px 0;max-width:600px}
+.reg .reghead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.reg h1{font-size:clamp(22px,3.4vw,30px);margin:0}
+.reg h2{font-size:clamp(14px,2vw,17px);margin:0}
+.reg .langpick{flex:none;margin:0;gap:6px}
+.reg .langpick button{font-size:14px;padding:4px 10px;border-width:2px}
+.reg label{margin:9px 0 5px;font-size:15px}
+.reg .cls button{font-size:17px;padding:7px 4px}
+.reg .cls.grp button{font-size:15px}
+.reg #gradeBtns button{font-size:15px;padding:7px 2px}
+.reg .regrow{display:grid;grid-template-columns:1fr 1.5fr;gap:10px}
+.reg input{font-size:19px;padding:7px 10px}
+.reg .err{min-height:1.2em;margin-top:4px;font-size:14px}
+.reg .start{position:sticky;bottom:0;margin:4px 0 0;border-radius:14px 14px 0 0;box-shadow:0 -6px 12px rgba(255,250,240,.95)}
+@media (max-height:620px){.reg h2{display:none}.reg label{margin:6px 0 3px}.reg .cls button{padding:5px 4px}}
+@media (max-width:420px){.reg .regrow{grid-template-columns:1fr 1.3fr}.reg .langpick button{padding:3px 7px}}
 .langpick button{flex:1;font-weight:900;font-size:18px;border:3px solid var(--ink);border-radius:12px;background:#fff;padding:8px;cursor:pointer}
 .langpick button.on{background:#7cc8ff}
 /* ===== 囂張對白、爆發、突發事件 ===== */
@@ -262,10 +279,9 @@ body{overflow-x:hidden}
 
   <!-- 登記 -->
   <div class="screen" id="regScreen">
-    <div class="panel">
-      <div class="langpick" id="langPick"><button data-set="zh">廣東話</button><button data-set="en">English</button></div>
-      <h1 data-i="gameTitle"></h1>
-      <h2 data-i="gameSub"></h2>
+    <div class="panel reg">
+      <div class="reghead"><div><h1 data-i="gameTitle"></h1></div>
+        <div class="langpick" id="langPick"><button data-set="zh">中文</button><button data-set="en">English</button></div></div>
       <label data-i="grpLabel"></label>
       <div class="cls grp" id="grpBtns"><button data-g="S3" class="on" data-i="grpS3"></button><button data-g="OPEN" data-i="grpOpen"></button></div>
       <label data-i="clsLabel"></label>
@@ -274,13 +290,12 @@ body{overflow-x:hidden}
         <div class="cls" id="gradeBtns"><button data-n="1"></button><button data-n="2"></button><button data-n="4"></button><button data-n="5"></button><button data-n="6"></button></div>
         <div class="cls" id="letterBtns" style="margin-top:8px"><button>A</button><button>B</button><button>C</button></div>
       </div>
-      <label for="stuNo" data-i="noLabel"></label>
-      <input id="stuNo" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off">
-      <div class="hint" data-i="noHint"></div>
-      <label for="pwd" data-i="pwdLabel"></label>
-      <input id="pwd" autocomplete="off" autocapitalize="characters" spellcheck="false" style="text-transform:uppercase">
+      <div class="regrow">
+        <div><label for="stuNo" data-i="noLabel"></label><input id="stuNo" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off"></div>
+        <div><label for="pwd" data-i="pwdLabel"></label><input id="pwd" autocomplete="off" autocapitalize="characters" spellcheck="false" style="text-transform:uppercase"></div>
+      </div>
       <div class="err" id="regErr"></div>
-      <button class="big" id="startBtn" data-i="start"></button>
+      <button class="big start" id="startBtn" data-i="start"></button>
     </div>
   </div>
 
@@ -481,10 +496,10 @@ window.STORY = [
 ];
 
 window.ENDINGS = [
-  {min:290, icon:"👑", name:"毀滅人類級病原體", desc:"幸好及時捉到你，否則人類好像被 Thanos 打了個響指，一下子少了一半。"},
-  {min:250, icon:"🏫", name:"連校長都中招級病原體", desc:"你差點令全校師生，連校長在內，都要請病假。"},
-  {min:210, icon:"🤒", name:"全班請病假級病原體", desc:"你成功令一半同學請病假，可惜老師照樣上課。"},
-  {min:160, icon:"🤧", name:"打個乞嗤級小病毒", desc:"最多令人打兩個噴嚏，一張紙巾就解決你。"},
+  {min:300, icon:"👑", name:"毀滅人類級病原體", desc:"幸好及時捉到你，否則人類好像被 Thanos 打了個響指，一下子少了一半。"},
+  {min:270, icon:"🏫", name:"連校長都中招級病原體", desc:"你差點令全校師生，連校長在內，都要請病假。"},
+  {min:240, icon:"🤒", name:"全班請病假級病原體", desc:"你成功令一半同學請病假，可惜老師照樣上課。"},
+  {min:200, icon:"🤧", name:"打個乞嗤級小病毒", desc:"最多令人打兩個噴嚏，一張紙巾就解決你。"},
   {min:0,   icon:"🗑️", name:"垃圾", desc:"被肥皂秒殺的垃圾小病毒，連酵母菌都在笑你。"}
 ];
 
@@ -1051,25 +1066,25 @@ window.STORY_EN = [
 ];
 window.ENDINGS_EN = [
 {
-"min": 290,
+"min": 300,
 "icon": "👑",
 "name": "Human-Destroyer Pathogen",
 "desc": "Lucky we caught you in time, or humanity would have halved like Thanos snapped his fingers."
 },
 {
-"min": 250,
+"min": 270,
 "icon": "🏫",
 "name": "Even-the-Principal-Got-Sick Pathogen",
 "desc": "You almost made the whole school sick, principal included."
 },
 {
-"min": 210,
+"min": 240,
 "icon": "🤒",
 "name": "Half-the-Class-Off-Sick Pathogen",
 "desc": "You got half the class off sick, but the teacher still taught the lesson."
 },
 {
-"min": 160,
+"min": 200,
 "icon": "🤧",
 "name": "One-Sneeze Mini Virus",
 "desc": "You made someone sneeze twice. One tissue and you were gone."
@@ -1299,10 +1314,10 @@ const NAMES={flu:'流感病毒',small:'天花病毒',yeast:'酵母菌',cholera:'
 
 /* ===== 介面文字（中／英） ===== */
 const UI={
- zh:{score:'分數',tap:'點一下繼續 ▶',gameTitle:'🦠 病毒大作戰',gameSub:'急症室大審判',grpLabel:'參加組別',grpS3:'🏆 中三挑戰賽',grpOpen:'🌍 公開挑戰賽',grades:{1:'中一',2:'中二',4:'中四',5:'中五',6:'中六'},errGrade:'請選擇年級和班別',errWrongGrp:'這個密語不屬於你所選的組別，請檢查組別',clsLabel:'你的班別',noLabel:'你的學號',noPh:'例如：12',noHint:'只需輸入數字即可',
-     pwdLabel:'開始密語（聽老師說）',pwdPh:'等老師說出密語',start:'開始遊戲 ▶',rating:'白血球醫生的危險評級',moral:'現實中，請勤洗手、打疫苗、多做運動。<br>病菌聯盟永遠不受歡迎！',
-     again:'再玩一次',sndOn:' 聲音：開',sndOff:' 聲音：關',narr:'旁白',errCls:'請先選擇班別',errNo:'請輸入學號（數字）',errNoBig:'學號不正確，請再檢查',errPwd:'密語不正確，請聽老師說',errPwd0:'請輸入老師說的開始密語',
-     hello:'選擇語言、班別，輸入學號和開始密語，就可以開始。',qtag:(n,lv)=>`第 ${n} 題 · ${lv}`,lv:{'簡單':'簡單','中等':'中等','困難':'困難'},
+ zh:{score:'分數',tap:'點一下繼續 ▶',gameTitle:'🦠 病毒大作戰',gameSub:'急症室大審判',grpLabel:'參加組別',grpS3:'🏆 中三挑戰賽',grpOpen:'🌍 公開挑戰賽',grades:{1:'中一',2:'中二',4:'中四',5:'中五',6:'中六'},errGrade:'請選擇年級和班別',errWrongGrp:'這個暗號不屬於你所選的組別，請檢查組別',clsLabel:'你的班別',noLabel:'你的學號',noPh:'例如 12',noHint:'只需輸入數字即可',
+     pwdLabel:'🔑 病菌聯盟暗號',pwdPh:'向指揮官（老師）索取暗號',start:'開始遊戲 ▶',rating:'白血球醫生的危險評級',moral:'現實中，請勤洗手、打疫苗、多做運動。<br>病菌聯盟永遠不受歡迎！',
+     again:'再玩一次',sndOn:' 聲音：開',sndOff:' 聲音：關',narr:'旁白',errCls:'請先選擇班別',errNo:'請輸入學號（數字）',errNoBig:'學號應為 1 至 35 之間的數字，請再檢查',errNoDigit:'學號只可以輸入數字',errNoLong:'學號最多兩位數字，請再檢查',errPwd:'暗號錯誤！你不是病菌聯盟的成員',errPwd0:'請輸入病菌聯盟暗號',
+     hello:'選擇組別和班別，輸入學號和病菌聯盟暗號，就可以開始。',qtag:(n,lv)=>`第 ${n} 題 · ${lv}`,lv:{'簡單':'簡單','中等':'中等','困難':'困難'},
      right:g=>`答對！+${g} 分。`,think:'再想一想！',go:'明白了，繼續 ▶',pts:(a,b)=>`${a} / ${b} 分`,who:(c,n)=>`${c}　${n} 號`,
      test:'🧪 測試',upTest:'🧪 測試模式：分數不會上傳排行榜',upNone:'（未設定排行榜，分數只顯示在這部裝置）',upIng:'📡 正在上傳分數……',
      progUp:d=>`📈 比你之前最高分進步了 ${d} 分！`,progSame:'你已經追平之前的最高分，再試一次？',progDown:b=>`你之前的最高分是 ${b} 分，再接再厲！`,rvBtn:'🔁 挑戰我答錯過的題目',rvNone:'你這局全部第一次答對，沒有錯題！',rvTag:(i,n)=>`錯題重溫 ${i} / ${n}`,rvRight:'答對！',rvNext:'下一題 ▶',rvDone:'🎯 錯題全部掌握！',rvDoneSub:'再答錯的題目會重溫多一次，直至全部答對。（重溫不會影響排行榜分數）',rvAgain:n=>`還有 ${n} 題要再試一次`,tooFast:'⚡ 答得太快（不足 1 秒），這題不計連續答對。',upOk:(c,n,k)=>`✅ 已上傳排行榜：${c} ${n} 號${k>1?`（第${['','一','二','三','四','五','六','七','八','九','十'][k]||k}次）`:''}`,upFail:'⚠️ 未能上傳分數，請告訴老師',
@@ -1327,10 +1342,10 @@ const UI={
      mgFoodRes:(g,b,p)=>`🥗 揀中 ${g} 樣健康食物${b?`，揀錯 ${b} 樣高脂高糖食物`:''}　${p>=0?'+':''}${p}`,
      mgBee:'🐝 被蜜蜂攻擊！−5',mgFat:'❌ 陳先生的血管又堵塞了！−2',
      partyTitle:'🦠 流感爆發！🕶️',partySub:'污糟糟中學感染率：',partyNote:'現實中，學校爆發流感時，曾有一班半數同學請病假。',bonus:b=>`（連續答對及突擊任務：${b>=0?'+':''}${b}）`},
- en:{score:'Score',tap:'Tap to continue ▶',gameTitle:'🦠 Virus Wars',gameSub:'Trial in the Body A&E',grpLabel:'Division',grpS3:'🏆 S3 Challenge',grpOpen:'🌍 Open Challenge',grades:{1:'S1',2:'S2',4:'S4',5:'S5',6:'S6'},errGrade:'Please choose your form and class',errWrongGrp:'This password is for the other division. Check your division.',clsLabel:'Your class',noLabel:'Your class number',noPh:'e.g. 12',noHint:'Numbers only',
-     pwdLabel:'Start password (listen to your teacher)',pwdPh:'Wait for the password',start:'Start ▶',rating:"Dr. White Blood Cell's Danger Rating",moral:'In real life: wash your hands, get vaccinated and exercise.<br>The Germ Alliance is never welcome!',
-     again:'Play again',sndOn:' Sound: on',sndOff:' Sound: off',narr:'Narrator',errCls:'Please choose your class',errNo:'Please enter your class number',errNoBig:'That class number is not valid. Please check.',errPwd:'Wrong password. Listen to your teacher!',errPwd0:'Please enter the start password',
-     hello:'Choose a language and your class, enter your class number and the start password to begin.',qtag:(n,lv)=>`Question ${n} · ${lv}`,lv:{'簡單':'Easy','中等':'Medium','困難':'Hard'},
+ en:{score:'Score',tap:'Tap to continue ▶',gameTitle:'🦠 Virus Wars',gameSub:'Trial in the Body A&E',grpLabel:'Division',grpS3:'🏆 S3 Challenge',grpOpen:'🌍 Open Challenge',grades:{1:'S1',2:'S2',4:'S4',5:'S5',6:'S6'},errGrade:'Please choose your form and class',errWrongGrp:'This code is for the other division. Check your division.',clsLabel:'Your class',noLabel:'Your class number',noPh:'e.g. 12',noHint:'Numbers only',
+     pwdLabel:'🔑 Germ Alliance code',pwdPh:'Ask your commander (teacher)',start:'Start ▶',rating:"Dr. White Blood Cell's Danger Rating",moral:'In real life: wash your hands, get vaccinated and exercise.<br>The Germ Alliance is never welcome!',
+     again:'Play again',sndOn:' Sound: on',sndOff:' Sound: off',narr:'Narrator',errCls:'Please choose your class',errNo:'Please enter your class number',errNoBig:'Your class number should be between 1 and 35. Please check.',errNoDigit:'Numbers only, please.',errNoLong:'Class numbers have at most two digits. Please check.',errPwd:'Wrong code! You are not a member of the Germ Alliance.',errPwd0:'Please enter the Germ Alliance code',
+     hello:'Choose your division and class, then enter your class number and the Germ Alliance code to begin.',qtag:(n,lv)=>`Question ${n} · ${lv}`,lv:{'簡單':'Easy','中等':'Medium','困難':'Hard'},
      right:g=>`Correct! +${g} points. `,think:'Think again!',go:'Got it, continue ▶',pts:(a,b)=>`${a} / ${b} points`,who:(c,n)=>`${c}　No. ${n}`,
      test:'🧪 Test',upTest:'🧪 Test mode: score not uploaded',upNone:'(Leaderboard not set up. Score shown on this device only.)',upIng:'📡 Uploading score...',
      progUp:d=>`📈 You beat your previous best by ${d} points!`,progSame:'You matched your previous best. Try again?',progDown:b=>`Your previous best is ${b}. Keep going!`,rvBtn:'🔁 Retry the questions I got wrong',rvNone:'You got every question right the first time. No mistakes to review!',rvTag:(i,n)=>`Review ${i} / ${n}`,rvRight:'Correct!',rvNext:'Next ▶',rvDone:'🎯 All mistakes mastered!',rvDoneSub:'Questions you miss again come back until you get them all right. (Review does not change your leaderboard score.)',rvAgain:n=>`${n} question(s) to try again`,tooFast:'⚡ Too fast (under 1 second): this one does not count towards your streak.',upOk:(c,n,k)=>`✅ Uploaded to leaderboard: ${c} No. ${n}${k>1?` (attempt ${k})`:''}`,upFail:'⚠️ Upload failed. Please tell your teacher.',
@@ -1822,7 +1837,8 @@ document.querySelectorAll('#grpBtns button').forEach(b=>b.onclick=()=>{grp=b.dat
 document.querySelectorAll('#gradeBtns button').forEach(b=>b.onclick=()=>{pickGrade=b.dataset.n;pickOne('#gradeBtns',b);});
 document.querySelectorAll('#letterBtns button').forEach(b=>b.onclick=()=>{pickLetter=b.textContent;pickOne('#letterBtns',b);});
 function gradeLabels(){document.querySelectorAll('#gradeBtns button').forEach(b=>b.textContent=L().grades[b.dataset.n]);}
-$('stuNo').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'').slice(0,3);});
+$('stuNo').addEventListener('input',e=>{const v=e.target.value,all=v.replace(/\D/g,''),d=all.slice(0,2);e.target.value=d;
+  $('regErr').textContent=/\D/.test(v)?L().errNoDigit:all.length>2?L().errNoLong:'';});
 $('pwd').addEventListener('input',e=>{const p=e.target.selectionStart;e.target.value=e.target.value.toUpperCase();try{e.target.setSelectionRange(p,p);}catch(_){}});
 function testBadge(){let b=$('testb');if(st.test&&!b){b=document.createElement('span');b.id='testb';b.style.cssText='font-weight:900;font-size:13px;background:#7cc8ff;color:#1d1d26;border:3px solid #1d1d26;border-radius:10px;padding:2px 8px';document.querySelector('.right').prepend(b);}if(b)b.textContent=L().test;}
 $('startBtn').onclick=()=>{
@@ -1831,8 +1847,7 @@ $('startBtn').onclick=()=>{
   if(isTest){cls='TEST';no='TEST';}          // 測試帳戶：不用填班別和學號
   else{
     if(!cls){$('regErr').textContent=grp==='S3'?L().errCls:L().errGrade;return;}
-    if(!no||/^0+$/.test(no)){$('regErr').textContent=L().errNo;return;}
-    if(Number(no)>35){$('regErr').textContent=L().errNoBig;return;}   // 每班最多 32 人，防止學生亂填學號
+    if(!/^\d{1,2}$/.test(no)||Number(no)<1||Number(no)>35){$('regErr').textContent=no?L().errNoBig:L().errNo;return;}   // 學號只可 1–35（一至兩位數字）；測試帳戶不受限制
     const want=grp==='S3'?PWD_HASH:OPEN_HASH,other=grp==='S3'?OPEN_HASH:PWD_HASH;
     if(h(pw)===other){$('regErr').textContent=L().errWrongGrp;return;}
     if(h(pw)!==want){$('regErr').textContent=pw?L().errPwd:L().errPwd0;return;}
